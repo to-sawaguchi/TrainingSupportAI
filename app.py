@@ -1,13 +1,14 @@
 import streamlit as st
 import mediapipe as mp
-import streamlit_webrtc as webrtc
 import cv2
 import numpy as np
+from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-class VideoTransformer(webrtc.VideoTransformerBase):
+
+class VideoTransformer(VideoTransformerBase):
     def __init__(self):
         self.pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
@@ -20,27 +21,29 @@ class VideoTransformer(webrtc.VideoTransformerBase):
 
         return img
 
-webrtc_ctx = webrtc.WebRtcMode.SENDRECV
 
-webrtc_streamer = webrtc.webrtc_streamer(
-    key="pose-estimation",
-    mode=webrtc_ctx,
-    video_transformer_factory=VideoTransformer,
-)
+def main():
+    webrtc_ctx = webrtc_streamer(
+        key="pose-estimation",
+        mode="recvonly",
+        video_transformer_factory=VideoTransformer,
+        async_transform=True
+    )
 
-if webrtc_streamer.is_recording():
-    while True:
-        video_frame = webrtc_streamer.get_frame()
+    if webrtc_ctx.video_transformer:
+        st.write("カメラ映像を表示します")
+        while True:
+            if webrtc_ctx.video_transformer.frame_queue.empty():
+                continue
 
-        if video_frame is None:
-            st.write("Finished")
-            break
+            frame = webrtc_ctx.video_transformer.frame_queue.get()
+            img = frame.to_ndarray(format="bgr24")
 
-        with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
-            results = pose.process(video_frame.to_ndarray(format="rgb24"))
-            mp_drawing.draw_landmarks(
-                video_frame.to_ndarray(format="rgb24"),
-                results.pose_landmarks,
-                mp_pose.POSE_CONNECTIONS,
-            )
-        st.image(video_frame.to_ndarray(format="rgb24"), channels="RGB")
+            st.image(img, channels="BGR")
+
+            if st.button("終了"):
+                break
+
+
+if __name__ == "__main__":
+    main()
