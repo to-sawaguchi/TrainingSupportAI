@@ -27,7 +27,8 @@ def main():
         key="pose-estimation",
         mode=WebRtcMode.RECVONLY,
         video_transformer_factory=VideoTransformer,
-        async_transform=True
+        async_transform=True,
+        device=1
     )
 
     if webrtc_ctx.video_transformer:
