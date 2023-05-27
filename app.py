@@ -11,7 +11,7 @@ mp_pose = mp.solutions.pose
 class VideoTransformer(VideoTransformerBase):
     def __init__(self):
         self.pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
-        self.camera = cv2.VideoCapture(1)  # カメラデバイスを指定（デバイス番号を適宜変更）
+        self.camera = cv2.VideoCapture(0)  # カメラデバイスを指定（デバイス番号を適宜変更）
 
     def transform(self, frame):
         success, img = self.camera.read()
