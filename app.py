@@ -19,7 +19,7 @@ class VideoTransformer(VideoTransformerBase):
         if results.pose_landmarks:
             mp_drawing.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-        return img
+        st.image(img, channels="BGR")
 
 
 def main():
@@ -33,14 +33,6 @@ def main():
     if webrtc_ctx.video_transformer:
         st.write("カメラ映像を表示します")
         while True:
-            if webrtc_ctx.video_transformer.frame_queue.empty():
-                continue
-
-            frame = webrtc_ctx.video_transformer.frame_queue.get()
-            img = frame.to_ndarray(format="bgr24")
-
-            st.image(img, channels="BGR")
-
             if st.button("終了"):
                 break
 
