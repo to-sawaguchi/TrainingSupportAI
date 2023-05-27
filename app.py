@@ -32,8 +32,9 @@ def main():
 
     if webrtc_ctx.video_transformer:
         st.write("カメラ映像を表示します")
+        exit_button = st.button("終了", key="exit-button")
         while True:
-            if st.button("終了", key="exit-button"):
+            if exit_button:
                 break
 
 
