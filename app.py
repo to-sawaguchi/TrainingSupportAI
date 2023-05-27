@@ -2,7 +2,7 @@ import streamlit as st
 import mediapipe as mp
 import cv2
 import numpy as np
-from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
+from streamlit_webrtc import VideoTransformerBase, webrtc_streamer, WebRtcMode
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
@@ -25,7 +25,7 @@ class VideoTransformer(VideoTransformerBase):
 def main():
     webrtc_ctx = webrtc_streamer(
         key="pose-estimation",
-        mode="recvonly",
+        mode=WebRtcMode.RECVONLY,
         video_transformer_factory=VideoTransformer,
         async_transform=True
     )
