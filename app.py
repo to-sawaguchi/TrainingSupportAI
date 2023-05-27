@@ -11,24 +11,26 @@ mp_pose = mp.solutions.pose
 class VideoTransformer(VideoTransformerBase):
     def __init__(self):
         self.pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        self.camera = cv2.VideoCapture(1)  # カメラデバイスを指定（デバイス番号を適宜変更）
 
     def transform(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        results = self.pose.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        success, img = self.camera.read()
+        if success:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            results = self.pose.process(img)
 
-        if results.pose_landmarks:
-            mp_drawing.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+            if results.pose_landmarks:
+                mp_drawing.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-        st.image(img, channels="BGR")
+        st.image(img, channels="RGB")
 
 
 def main():
     webrtc_ctx = webrtc_streamer(
         key="pose-estimation",
-        mode=WebRtcMode.RECVONLY,
+        mode=WebRtcMode.SENDRECV,
         video_transformer_factory=VideoTransformer,
-        async_transform=True,
-        device=1
+        async_transform=True
     )
 
     if webrtc_ctx.video_transformer:
